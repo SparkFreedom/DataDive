@@ -1,0 +1,605 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>Alcohol Control and Social Outcomes</title>
+	<style type="text/css">
+	
+		/* Report
+		****************************************************************/
+		
+		.report
+		{
+			overflow-x: auto;
+			overflow-y: hidden;
+			width: 100%;
+		}
+		
+		.chart, .imgchart
+		{
+			display: block;
+			width: 100%;
+		}
+		
+		.chart .tick
+		{
+			stroke: #CCCCCC;
+		}
+		
+		.chart .tickLabel,
+		.chart .barLabel
+		{
+			font-family: Helvetica, 'Helvetica Neue', Arial, sans-serif;
+			font-size: 10pt;
+		}
+		
+		.chart .bar
+		{
+			stroke: white;
+		}
+		
+		.chart .barLabel
+		{
+			fill: white;
+		}
+		
+		rect.control-heavy    { fill: #21537C; }
+		rect.control-moderate { fill: #B55831; }
+		rect.control-light    { fill: #D19249; }
+		rect.control-license  { fill: #EDC154; }
+		
+		.chart text.control-license
+		{
+			fill: #916332;
+		}
+		
+		.swatch
+		{
+			width: 20px;
+			height: 20px;
+			margin-right: 5px;
+			vertical-align: middle;
+		}
+	
+	
+		/* Screen cap settings
+		****************************************************************/
+		/*
+		body
+		{
+			background-color: black;
+			color: white;
+			-webkit-font-smoothing: antialiased;
+		}
+		
+		.report
+		{
+			background-color: white;
+		}
+		*/
+	</style>
+	
+	<script type="text/javascript" src="jquery.js"></script>
+	<script type="text/javascript" src="d3.v2.js"></script>
+
+	<script type="text/javascript">
+		if (!Object.keys) {
+			Object.keys = (function () {
+				var hasOwnProperty = Object.prototype.hasOwnProperty,
+        hasDontEnumBug = !({ toString: null }).propertyIsEnumerable('toString'),
+        dontEnums = [
+          'toString',
+          'toLocaleString',
+          'valueOf',
+          'hasOwnProperty',
+          'isPrototypeOf',
+          'propertyIsEnumerable',
+          'constructor'
+        ],
+        dontEnumsLength = dontEnums.length
+
+				return function (obj) {
+					if (typeof obj !== 'object' && typeof obj !== 'function' || obj === null) throw new TypeError('Object.keys called on non-object')
+
+					var result = []
+
+					for (var prop in obj) {
+						if (hasOwnProperty.call(obj, prop)) result.push(prop)
+					}
+
+					if (hasDontEnumBug) {
+						for (var i = 0; i < dontEnumsLength; i++) {
+							if (hasOwnProperty.call(obj, dontEnums[i])) result.push(dontEnums[i])
+						}
+					}
+					return result
+				}
+			})()
+		};
+	</script>
+</head>
+<body>
+	<div class="article">
+		<h1>Alcohol Control and Social Outcomes</h1>
+		
+		<div class="header">
+			<form action="" method="get" class="form form-alt-a">
+				<dl>
+					<dt><label for="reportSelect">Social Outcome</label></dt>
+					<dd>
+						<span class="select-wrapper select-wrapper-large">
+						<select name="report" id="reportSelect">
+							<option selected="selected" value="death">Alcohol-Related Deaths per Capita (all ages)</option>
+							<option value="death21">Alcohol-Related Deaths per Capita (people under 21 only)</option>
+							<option value="traffic_04">Alcohol-Related Traffic Fatalities as a Fraction of All Traffic Fatalities (2004)</option>
+							<option value="traffic_08">Alcohol-Related Traffic Fatalities as a Fraction of All Traffic Fatalities (2008)</option>
+							<option value="traffic_09">Alcohol-Related Traffic Fatalities as a Fraction of All Traffic Fatalities (2009)</option>
+							<option value="trafficpop_04">Alcohol-Involved Traffic Fatalities per 100,000 Population (2004)</option>
+							<option value="trafficpop_08">Alcohol-Involved Traffic Fatalities per 100,000 Population (2008)</option>
+							<option value="trafficpop_09">Alcohol-Involved Traffic Fatalities per 100,000 Population (2009)</option>
+						
+							<option value="illicit_0204">Illicit Drug Use (2002-2004)</option>
+							<option value="binge_0405">Binge Drinking (% of population 12 and older, 2004-05)</option>
+							<option value="binge17_0405">Binge Drinking (% of population 12 to 17, 2004-05)</option>
+							<option value="report_0304">% aged 12-20 reporting using alchohol in the past month (2003-04)</option>
+							<option value="reportbinge_0304">% aged 12-20 reporting binge drinking in the past month (2003-04)</option>
+						</select></span>
+					</dd>
+					<dd>
+						<span class="checkbox-wrapper left">
+							<input name="average" id="groupInput" class="checkbox" type="checkbox" value="yes" /></span>
+						<span class="text-wrapper left">
+							<label for="groupInput"> Group states by degree of alcohol control.</label></span>
+					</dd>
+				</dl>
+			</form>
+		</div>
+
+		<div class="description" id="deathDescription">
+			<h2>Alcohol-Related Deaths per Capita (all ages)</h2>
+			<p>This is the total number of deaths in a state that were attributable to alcohol divided by the population of that state. Alcohol-attributable deaths include chronic causes (e.g., alcoholic liver disease and fetal alcohol syndrome) and acute causes (e.g., alcohol poisoning, traffic fatalities, aspiration).</p>
+			<p>Source: <a target="_blank" href="http://www.cdc.gov/">Centers for Disease Control and Prevention</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="death21Description">
+			<h2>Alcohol-Related Deaths per Capita (people under 21 only)</h2>
+			<p>This is the number of deaths of people under age 21 that were attributable to alcohol divided by the population of that state. Alcohol-attributable deaths include chronic causes (e.g., alcoholic liver disease and fetal alcohol syndrome) and acute causes (e.g., alcohol poisoning, traffic fatalities, aspiration).</p>
+			<p>Source: <a target="_blank" href="http://www.cdc.gov/">Centers for Disease Control and Prevention</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="trafficDescription">
+			<h2>Alcohol-Related Traffic Fatalities as a Fraction of All Traffic Fatalities</h2>
+			<p>This is the number of alcohol-related traffic fatalities in a state divided by the total number of traffic fatalities in that state. For example, 25% means that one-fourth of all traffic fatalities in the state involved alcohol.</p>
+			<p>Source: <a target="_blank" href="http://www-fars.nhtsa.dot.gov/">National Highway Traffic Safety Administration, Fatality Analysis Reporting System</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-traffic_04.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-traffic_04-grouped.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-traffic_08.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-traffic_08-grouped.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-traffic_09.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-traffic_09-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="trafficpopDescription">
+			<h2>Alcohol-Involved Traffic Fatalities per 100,000 Population</h2>
+			<p>This is the number of alcohol-involved traffic fatalities in a state divided by the population in that state (on a per 100,000 person basis). For example, 7.0 means that 7 out of every 100,000 people living in the state died in an alcohol-involved traffic fatality.</p>
+			<p>Source: <a target="_blank" href="http://www.alcoholalert.com/">AlcoholAlert</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-trafficpop_04.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-trafficpop_04-grouped.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-trafficpop_08.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-trafficpop_08-grouped.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-trafficpop_09.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-trafficpop_09-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="illicit_0204Description">
+			<h2>Illicit Drug Use (2002-2004)</h2>
+			<p>Use of illicit drugs in the past year (percentage of persons aged 12 or older)</p>
+			<p>Source: <a target="_blank" href="http://oas.samhsa.gov/statesList.cfm">SAMHSA, Office of Applied Studies, National Survey on Drug Use and Health, 2004 and 2005</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-illicit_0204.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-illicit_0204-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="binge_0405Description">
+			<h2>Binge Drinking (% of population 12 and older, 2004-05)</h2>
+			<p>Binge drinking is defined as drinking five or more drinks on the same occasion (i.e., at the same time or within a couple hours of each other) on at least 1 day in the past 30 days.</p>
+			<p>Source: <a target="_blank" href="http://oas.samhsa.gov/2k5State/AppB.htm#TabB.11">SAMHSA, Office of Applied Studies, National Survey on Drug Use and Health, 2004 and 2005</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-binge_0405.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-binge_0405-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="binge17_0405Description">
+			<h2>Binge Drinking (% of population 12 to 17, 2004-05)</h2>
+			<p>Binge drinking is defined as drinking five or more drinks on the same occasion (i.e., at the same time or within a couple hours of each other) on at least 1 day in the past 30 days.</p>
+			<p>Source: <a target="_blank" href="http://oas.samhsa.gov/2k5State/AppB.htm#TabB.11">SAMHSA, Office of Applied Studies, National Survey on Drug Use and Health, 2004 and 2005</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-binge17_0405.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-binge17_0405-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="report_0304Description">
+			<h2>% aged 12-20 reporting using alchohol in the past month (2003-04)</h2>
+			<p>Percentage of people aged 12 to 20 who reported using alchohol in the past month.</p>
+			<p>Source: <a target="_blank" href="http://www.oas.samhsa.gov/2k6/stateUnderageDrinking/underageDrinking.htm">SAMHSA, Office of Applied Studies, National Survey on Drug Use and Health, 2004 and 2005</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-report_0304.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-report_0304-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="reportbinge_0304Description">
+			<h2>% aged 12-20 reporting binge drinking in the past month (2003-04)</h2>
+			<p>Percentage of people aged 12 to 20 who reported binge drinking (5 or more drinks in a sitting) at least once in the past month.</p>
+			<p>Source: <a target="_blank" href="http://www.oas.samhsa.gov/2k6/stateUnderageDrinking/underageDrinking.htm">SAMHSA, Office of Applied Studies, National Survey on Drug Use and Health, 2004 and 2005</a></p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-reportbinge_0304.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-reportbinge_0304-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+
+		
+		<p class="report"></p>
+
+
+		<div class="colset">
+
+			<div class="col-1_4">
+			<div class="col-inner">
+				<h3><img class="swatch" src="images/swatch-21537C.gif" alt="" />
+					Heavy control</h3>
+				<p>State government has a monopoly on the retail sales of two or more types of alcohol (beer, wine, liquor), and the wholesale sales of one or more types of alcohol.</p>
+			</div>
+			</div><!-- col -->
+			
+			<div class="col-1_4">
+			<div class="col-inner">
+				<h3><img class="swatch" src="images/swatch-B55831.gif" alt="" />
+					Moderate control</h3>
+				<p>State government has a monopoly on the retail sales of one type of alcohol (beer, wine, liquor), and the wholesale sales of one or more types of alcohol.</p>
+			</div>
+			</div><!-- col -->
+			
+			<div class="col-1_4">
+			<div class="col-inner">
+				<h3><img class="swatch" src="images/swatch-D19249.gif" alt="" />
+					Light control</h3>
+				<p>Retail sales of all types of alcohol are privatized, and the state government has a monopoly on the wholesale sales of one or more types of alcohol.</p>
+			</div>
+			</div><!-- col -->
+			
+			<div class="col-1_4">
+			<div class="col-inner">
+				<h3><img class="swatch" src="images/swatch-EDC154.gif" alt="" />
+					License</h3>
+				<p>Retail and wholesale sales of all types of alcohol are privatized.</p>
+			</div>
+			</div><!-- col -->
+
+		</div><!-- colset -->
+
+		
+		<script type="text/javascript">
+
+	initChart = function(data)
+	{
+		var reports =
+		{
+			'death': { format: '2.1f', year: '2012' },
+			'death21': { format: '2.2f', year: '2012' },
+			'traffic_04': { format: '%', year: '2012' },
+			'traffic_08': { format: '%', year: '2012' },
+			'traffic_09': { format: '%', year: '2012' },
+			'trafficpop_04': { format: '2.1f', year: '2012' },
+			'trafficpop_08': { format: '2.1f', year: '2012' },
+			'trafficpop_09': { format: '2.1f', year: '2012' },
+			'illicit_0204': { format: '%', year: '2012' },
+			'binge_0405': { format: '%', year: '2012' },
+			'binge17_0405': { format: '%', year: '2012' },
+			'report_0304': { format: '%', year: '2012' },
+			'reportbinge_0304': { format: '%', year: '2012' }
+		};
+		
+		var averageData = {};
+		
+		
+		var chartPaddingT = 24 / 2;
+		var chartPaddingL = 30;
+		var chartPaddingR = 10;
+		var chartPaddingB = 24 / 2;
+		var chartWidth = 940 - (chartPaddingL + chartPaddingR);
+		var chartHeight = 24 * 12;
+
+		var updateChart;
+
+		if (document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) {
+
+
+			//data = d3.csv.parse(csv);
+
+			data.forEach(function (d) {
+				if (!averageData[d.control]) {
+					averageData[d.control] =
+				{
+					control: d.control,
+					state: d.state,
+					count: 1
+				};
+				}
+				else
+				{ ++averageData[d.control].count; }
+
+				Object.keys(reports).forEach(function (r) {
+					d[r] = parseFloat(d[r]);
+
+					if (!averageData[d.control][r])
+					{ averageData[d.control][r] = 0; }
+
+					averageData[d.control][r] += d[r];
+				});
+			});
+
+			averageData = d3.values(averageData);
+
+			averageData.forEach(function (d) {
+				Object.keys(reports).forEach(function (r)
+				{ d[r] = d[r] / d.count; });
+			});
+
+
+			var paper = d3.select('.report').append('svg')
+				.attr('class', 'chart')
+				.attr('height', chartPaddingT + chartHeight + chartPaddingB)
+		
+			var grid = paper.append('g')
+				.attr('transform', 'translate(' + (chartPaddingL + 0.5) + ', ' +
+																					(chartPaddingT + 0.5) + ')');
+			var chart = paper.append('g')
+				.attr('transform', 'translate(' + (chartPaddingL + 0.5) + ', ' +
+																					(chartPaddingT + 0.5) + ')');
+			var key = paper.append('g')
+				.attr('transform', 'translate(' + (chartPaddingL) + ', ' +
+																					((chartPaddingT * 2) + chartHeight) + ')');
+
+
+			updateChart = function(data, report) {
+
+				var id = function(d) { return d.state; };
+		
+				/// Create scales ///
+		
+				var x = d3.scale.ordinal()
+					.domain(data.map(id))
+					.rangeRoundBands([0, chartWidth], data.length < 10 ? 0.2 : 0);
+		
+				var y = d3.scale.linear()
+					.domain([0, d3.max(data, function (d) { return d[report]; })])
+					.rangeRound([chartHeight, 0]);
+		
+				var yTicks = y.ticks(10);
+		
+		
+				/// Create and expand ticks for old scale ///
+		
+				var oldY = this.oldY || y;
+				var oldYTicks = oldY.ticks(10);
+		
+				while (yTicks.length > oldYTicks.length)
+				{
+					oldYTicks[oldYTicks.length] =
+						oldYTicks[oldYTicks.length - 1] + oldYTicks[1];
+				}
+		
+		
+				/// Expand ticks for new scale ///
+		
+				var exYTicks = yTicks.slice(0);
+		
+				while (oldYTicks.length > exYTicks.length)
+				{
+					exYTicks[exYTicks.length] =
+						exYTicks[exYTicks.length - 1] + exYTicks[1];
+				}
+		
+		
+				/// Save current scale ///
+		
+				this.oldY = y;
+		
+		
+				/// Prepare ticks for transition from old scale ///
+		
+				var ticks = grid.selectAll(".tick").data(oldYTicks);
+				var tickLabels = grid.selectAll(".tickLabel").data(oldYTicks);
+		
+				ticks.enter().append("line")
+					.attr('class', 'tick')
+					.attr("x1", 0)
+					.attr("y1", oldY)
+					.attr("y2", oldY);
+		
+				tickLabels.enter().append("text")
+					.attr("class", "tickLabel")
+					.attr("dy", '.35em')
+					.attr("text-anchor", "end")
+					.attr("x", -5)
+					.attr("y", oldY);
+		
+		
+				/// Transition to new scale ///
+		
+				ticks.data(exYTicks);
+				tickLabels.data(exYTicks);
+
+				ticks
+					.attr("x2", chartWidth)
+ 				.transition().duration(1000)
+					.attr("y1", y)
+					.attr("y2", y)
+		
+				tickLabels
+					.text(d3.format(reports[report].format))
+ 				.transition().duration(1000)
+					.attr("y", y);
+		
+		
+				/// Remove unneeded ticks ///
+		
+				ticks = grid.selectAll(".tick").data(yTicks);
+				tickLabels = grid.selectAll(".tickLabel").data(yTicks);
+		
+				ticks.exit()
+				.transition().delay(1000).duration(0)
+					.remove();
+		
+				tickLabels.exit()
+				.transition().delay(1000).duration(0)
+					.remove();
+		
+		
+				/// Create bars ///
+		
+				var bars = chart.selectAll('.bar').data(data, id);
+		
+				bars.enter().append('rect')
+					.attr('class', 'bar')
+					.attr('y', chartHeight)
+					.attr('height', 0);
+		
+				bars.exit().remove();
+		
+				bars
+					.attr('class', function(d) { return 'bar control-' + d.control.toLowerCase(); })
+					.attr('width', x.rangeBand())
+					.attr('x', function(d) { return x(id(d)); })
+ 				.transition().duration(1000)
+					.attr('y', function (d) { return y(d[report]); })
+					.attr('height', function (d) { return chartHeight - y(d[report]); });
+		
+		
+				/// Create bar labels ///
+		
+				if (data[0].count) {
+					chart.selectAll('.barLabel').remove();
+				} else {
+					var barLabels = chart.selectAll('.barLabel').data(data, id);
+					var barLabelX = function(d) { return x(d.state) + x.rangeBand() / 2; };
+
+					barLabels.enter().append('text')
+						.attr('class', 'barLabel');
+
+					barLabels
+						.attr('class', function (d) { return 'barLabel control-' + d.control.toLowerCase(); })
+						.attr('x', barLabelX)
+						.attr('y', chartHeight)
+						.attr('dx', 3)
+						.attr('dy', '.35em')
+						.attr('transform', function (d)
+							{ return 'rotate(-90, ' + barLabelX(d) + ', ' + chartHeight + ')'; })
+						.attr('text-anchor', 'start')
+						.text(function (d) { return d.state });
+
+					barLabels.exit().remove();
+				}
+			};
+
+		} else {
+
+			/// No SVG support, load static images ///
+
+			updateChart = function (data, report) {
+
+				var src = 'images/' + reports[report].year + '/fpi-alcoholcontrol-' + report;
+
+				if ($('#groupInput').is(':checked')) { src += '-grouped'; }
+
+				src += '.png';
+
+				$('.report').html('<img class="imgchart" src="' + src + '" alt="" />');
+
+			};
+		}
+		
+
+		var prevDescHeight = 0;
+
+		var updateDescription = function (report) {
+
+			var descriptionID;
+
+			if (report.indexOf('traffic_') == 0) {
+				descriptionID = 'trafficDescription';
+			} else if (report.indexOf('trafficpop_') == 0) {
+				descriptionID = 'trafficpopDescription';
+			} else {
+				descriptionID = report + 'Description';
+			}
+
+			var description = $('#' + descriptionID);
+
+			$('#' + descriptionID + ' h2').text($('#reportSelect option:selected').text());
+			$('.description').css('display', 'none');
+
+			description
+				.css('display', 'block')
+				.css('height', 'auto');
+
+			var descHeight = description.height();
+
+			if (prevDescHeight && prevDescHeight != descHeight) {
+				description
+					.height(prevDescHeight)
+					.animate({ height: descHeight }, 1000)
+					.css('overflow', 'visible');
+			}
+
+			prevDescHeight = descHeight;
+		};
+
+
+		var onInputChange = function (e) {
+			var report = $('#reportSelect').val();
+
+			updateChart($('#groupInput').is(':checked') ? averageData : data, report);
+			updateDescription(report);
+		};
+
+		var onWindowResize = function (e) {
+			var newChartWidth = $('.report').width() - (chartPaddingL + chartPaddingR);
+
+			if (chartWidth != newChartWidth) {
+				chartWidth = newChartWidth;
+
+				onInputChange(e)
+			}
+		};
+
+		$('#reportSelect').change(onInputChange);
+		$('#groupInput').change(onInputChange);
+		$(window).resize(onWindowResize);
+
+		onInputChange();
+		onWindowResize();
+	};
+		
+	d3.csv('alcoholcontrol.csv', initChart);
+	
+		</script>
+	
+	</div><!-- article -->
+</body>
+
