@@ -128,8 +128,11 @@
 					<dd>
 						<span class="select-wrapper select-wrapper-large">
 						<select name="report" id="reportSelect">
-							<option value="UNFUNDED_LIABILITIES_BILLION">UNFUNDED_LIABILITIES_BILLION</option>
-							<option selected="selected" value="PERCENT_FUNDED">PERCENT_FUNDED</option>
+							<option selected="selected" value="UNFUNDED_LIABILITIES_BILLIONS">UNFUNDED_LIABILITIES_BILLIONS</option>
+							<option value="PERCENT_UNFUNDED">PERCENT_UNFUNDED</option>
+							<option value="PENSION_ASSETS_BILLIONS">PENSION_ASSETS_BILLIONS</option>
+							<option value="NUM_HOUSEHOLDS">NUM_HOUSEHOLDS</option>
+							<option value="UNFUNDED_LIABILITIES_PER_HOUSEHOLD">UNFUNDED_LIABILITIES_PER_HOUSEHOLD</option>
 						</select></span>
 					</dd>
 					<dd>
@@ -142,23 +145,50 @@
 			</form>
 		</div>
 
-		<div class="description" id="UNFUNDED_LIABILITIES_BILLIONDescription">
-			<h2>UNFUNDED_LIABILITIES_BILLION</h2>
-			<p>UNFUNDED_LIABILITIES_BILLION</p>
+		<div class="description" id="UNFUNDED_LIABILITIES_BILLIONSDescription">
+			<h2>UNFUNDED_LIABILITIES_BILLIONS</h2>
+			<p>UNFUNDED_LIABILITIES_BILLIONS</p>
 			<noscript>
 				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death.png" alt="" /></p>
 			</noscript>
 		</div><!-- description -->
 		
-		<div class="description" id="PERCENT_FUNDEDDescription">
-			<h2>PERCENT_FUNDED</h2>
-			<p>PERCENT_FUNDED</p>
+		<div class="description" id="PERCENT_UNFUNDEDDescription">
+			<h2>PERCENT_UNFUNDED</h2>
+			<p>PERCENT_UNFUNDED</p>
 			<noscript>
 				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21.png" alt="" /></p>
 				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21-grouped.png" alt="" /></p>
 			</noscript>
 		</div><!-- description -->
-
+		
+		<div class="description" id="PENSION_ASSETS_BILLIONSDescription">
+			<h2>PENSION_ASSETS_BILLIONS</h2>
+			<p>PENSION_ASSETS_BILLIONS</p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="NUM_HOUSEHOLDSDescription">
+			<h2>NUM_HOUSEHOLDS</h2>
+			<p>NUM_HOUSEHOLDS</p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
+		<div class="description" id="UNFUNDED_LIABILITIES_PER_HOUSEHOLDDescription">
+			<h2>UNFUNDED_LIABILITIES_PER_HOUSEHOLD</h2>
+			<p>UNFUNDED_LIABILITIES_PER_HOUSEHOLD</p>
+			<noscript>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21.png" alt="" /></p>
+				<p><img class="imgchart" src="images/2012/fpi-alcoholcontrol-death21-grouped.png" alt="" /></p>
+			</noscript>
+		</div><!-- description -->
+		
 		
 		<p class="report"></p>
 
@@ -206,8 +236,11 @@
 	{
 		var reports =
 		{
-			'UNFUNDED_LIABILITIES_BILLION': { format: '2.1f', year: '2012' },
-			'PERCENT_FUNDED': { format: '2.1f', year: '2012' }
+			'UNFUNDED_LIABILITIES_BILLIONS': { format: '2.1f', year: '2012' },
+			'PERCENT_UNFUNDED': { format: '2.1f', year: '2012' },
+			'PENSION_ASSETS_BILLIONS': { format: '2.1f', year: '2012' },
+			'NUM_HOUSEHOLDS': { format: '2.1f', year: '2012' },
+			'UNFUNDED_LIABILITIES_PER_HOUSEHOLD': { format: '2.1f', year: '2012' }
 		};
 		
 		var averageData = {};
@@ -490,7 +523,7 @@
 		onWindowResize();
 	};
 		
-	d3.csv('pension.csv', initChart);
+	d3.csv('winners_and_losers.csv', initChart);
 	
 		</script>
 	
