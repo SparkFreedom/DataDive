@@ -186,6 +186,7 @@ d3.json("readme.json?v=2", function(json) {
 		click(d);
 		
 		overlayTitle.text(d.properties.name);
+		overlayDescription.text("");
 		overlayDescription.text(getStateData(d.properties.name)['PERCENT_UNFUNDED'] + ' of pension liabilities are underfunded');
 		
 		++demoIndex;
