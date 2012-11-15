@@ -9,7 +9,7 @@ body
 	margin: 0;
 }
 
-.overlay
+h2.title, .overlay
 {
 	position: fixed;
 	left: 0;
@@ -17,9 +17,21 @@ body
 	
 	background: rgba(255, 255, 255, 0.5);
 	
-	padding: 2em;
+	padding: 2em 3em;
 	
 	width: 100%;
+}
+
+h2.title
+{
+	bottom: auto;
+	top: 0;
+	margin: 0;
+	padding: 1em 2em;
+	font-size: 24px;
+	line-height: 40px;
+	font-family: Georgia;
+	width: auto;
 }
 
 .overlay h2
@@ -63,7 +75,7 @@ body
 </style>
 <body>
 
-<h2>Pension Funding Map</h2>
+<h2 class="title"><img src="/DataDive/img/datadiveblack.png" alt="Data Dive" width="200px" /><br /> Pension Funding Map</h2>
 
 <script>
 
