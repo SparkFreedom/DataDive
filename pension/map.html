@@ -1,7 +1,49 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script src="http://d3js.org/d3.v2.min.js?2.9.6"></script>
+<script src="d3.v2.js"></script>
+<script src="jquery.js"></script>
 <style>
+
+body
+{
+	margin: 0;
+}
+
+.overlay
+{
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	
+	background: rgba(255, 255, 255, 0.5);
+	
+	padding: 2em;
+	
+	width: 100%;
+}
+
+.overlay h2
+{
+	display: inline;
+	margin: 0;
+	font-size: 48px;
+	line-height: 60px;
+	font-family: Helvetica;
+	font-weight: bold;
+	/*float: left;*/
+	padding-right: 1em;
+}
+
+.overlay p
+{
+	display: inline;
+	margin: 0;
+	font-size: 36px;
+	line-height: 60px;
+	font-family: Helvetica;
+	font-weight: 300;
+	/*float: left;*/
+}
 
 .background {
   fill: none;
@@ -20,11 +62,14 @@
 
 </style>
 <body>
+
 <script>
+
+/*{"type":"Feature","id":"11","properties":{"name":"District of Columbia"},"geometry":{"type":"Polygon","coordinates":[[[-77.035264,38.993869],[-76.909294,38.895284],[-77.040741,38.791222],[-77.117418,38.933623],[-77.035264,38.993869]]]}},*/
 
 initChart = function(stateData)
 {
-	var colorInterpolator = d3.interpolateHsl('green', 'red');
+	var colorInterpolator = d3.interpolateHsl('skyblue', 'red');
 	
 	var getStateData = function(state)
 	{
@@ -76,8 +121,8 @@ initChart = function(stateData)
   	}
 	}
 
-var width = 960,
-    height = 500,
+var width = window.innerWidth,
+    height = window.innerHeight,
     centered;
 
 var projection = d3.geo.albersUsa()
@@ -91,6 +136,12 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
+var overlay = d3.select("body").append("div")
+    .attr("class", "overlay");
+
+var overlayTitle = overlay.append("h2");
+var overlayDescription = overlay.append("p");
+
 svg.append("rect")
     .attr("class", "background")
     .attr("width", width)
@@ -102,7 +153,7 @@ var g = svg.append("g")
   .append("g")
     .attr("id", "states");
 
-d3.json("readme.json", function(json) {
+d3.json("readme.json?v=2", function(json) {
   g.selectAll("path")
       .data(json.features)
     .enter().append("path")
@@ -110,12 +161,39 @@ d3.json("readme.json", function(json) {
 			.attr('style', function(d) { return 'fill: '+getStateColor(d.properties.name, 'PERCENT_UNFUNDED')+';'; })
       .on("click", click);
       /*.on("click", click) (Zoom in on click) */;
-});
-}
 
-d3.csv('winners_and_losers.csv', initChart);
+
+	var demoIndex = 0;
+	
+	var demoState = function()
+	{
+		var d = json.features[demoIndex];
+		
+		click(d);
+		
+		overlayTitle.text(d.properties.name);
+		overlayDescription.text(getStateData(d.properties.name)['PERCENT_UNFUNDED'] + ' of pension liabilities are underfunded');
+		
+		++demoIndex;
+		demoIndex %= json.features.length;
+		
+		setTimeout(demoNext, 5000);
+	};
+	
+	var demoNext = function()
+	{
+		click(null);
+		
+		setTimeout(demoState, 1000);
+	};
+	
+	setTimeout(demoState, 2500);
+});
+
+
 
 function click(d) {
+	
   var x = 0,
       y = 0,
       k = 1;
@@ -138,5 +216,9 @@ function click(d) {
       .attr("transform", "scale(" + k + ")translate(" + x + "," + y + ")")
       .style("stroke-width", 1.5 / k + "px");
 }
+
+}
+
+d3.csv('winners_and_losers.csv?v=2', initChart);
 
 </script>
